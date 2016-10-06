@@ -1,4 +1,4 @@
-# OmegaT plugin development skeleton
+# OmegaT ReStracturedText plugin
 
 ## Where you should change?
 
@@ -12,31 +12,13 @@
 
 ## Build system
 
-This skeleton use Gralde for build system as same as OmegaT version 4.0 and later.
+The ReStructuredTest filter plugin for OmegaT use Gralde for build system
+as same as OmegaT version 4.0 and later.
 
 ## Dependency
 
 OmegaT and dependencies are located on remote maven repositories.
 It is nessesary to connect the internet at least first time to compile.
-
-## Extensions from Gradle defaults
-
-- Integration test support.
-- `Provided` configuration for OmegaT classes and libraries that is bundled with OmegaT.
-- Static code verification with Checkstyle and FindBugs.
-- FatJar generation.
-
-## FatJar
-
-OmegaT considered a plugin is a single jar file. If it is depend on some library, 
-you should ship your plugin with these library.
-It is why generating FatJar, single jar with all runtime dependencies
-which is not provided with OmegaT.
-
-## Where is a built artifact?
-
-You can find distribution files in `build/distributions/*.zip` and `*.tgz.`
-Also you can find jar files at `build/libs/`
 
 ## Test report
 
