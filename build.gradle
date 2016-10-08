@@ -37,8 +37,8 @@ sourceSets {
     integrationTest {
         compileClasspath += main.output + test.output + configurations.provided
         runtimeClasspath += main.output + test.output + configurations.provided
-        java {
-            srcDir file('src/integration-test/java')
+        groovy {
+            srcDir file('src/integration-test/groovy')
         }
         resources.srcDir file('src/integration-test/resources')
     }
@@ -52,18 +52,19 @@ repositories {
 }
 
 dependencies {
+    compile 'org.nuiton.jrst:jrst:2.2'
+    compile 'org.nuiton.jrst:jrst-doc:2.2'
+    compile 'org.nuiton.jrst:docutils:2.2'
     compile  'org.slf4j:slf4j-api:1.7.21'
     provided 'org.omegat:omegat:4.0.0-02'
     provided 'commons-io:commons-io:2.4'
     provided 'commons-lang:commons-lang:2.6'
     provided 'org.slf4j:slf4j-nop:1.5.10'
-    testCompile 'junit:junit:4.12'
-    testCompile 'xmlunit:xmlunit:1.6'
-    testCompile 'org.madlonkay.supertmxmerge:supertmxmerge:2.0.1'
-    integrationTestCompile 'org.testng:testng:6.9.10'
-    integrationTestCompile 'com.alibaba:fastjson:1.2.17'
+    testCompile 'org.codehaus.groovy:groovy:2.4.7'
+    testCompile 'org.testng:testng:6.9.10'
+    testCompile 'com.alibaba:fastjson:1.2.17'
 }
-//test.useTestNG()
+test.useTestNG()
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"

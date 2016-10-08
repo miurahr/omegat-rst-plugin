@@ -24,14 +24,14 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************/
 
-package org.omegat.filters;
+package tokyo.northside.omegat.rst
 
-import org.omegat.filters2.text.dokuwiki.DokuWikiFilter;
-import org.testng.annotations.Test;
+import org.testng.annotations.Test
 
-public class DokuWikiFilterIntegrationTest extends IntegrationTestFilterBase {
+public class RstFilterIntegrationTest extends RstTestBase {
+
     @Test
     public void testLoad() throws Exception {
-        test(new DokuWikiFilter(), "dokuwiki");
+        test("/filters/rst/restructured");
     }
 }

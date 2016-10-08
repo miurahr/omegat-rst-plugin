@@ -1,34 +1,31 @@
-# OmegaT ReStracturedText plugin
+# OmegaT reStructuredText plugin
 
-## Where you should change?
+## reStructured Text
 
-- Source code: `src/main/java/*`
-- Test code: `src/test/java/*` and `src/test/resources/*`
-- Project name in `settings.gradle`
-- Plugin Main class name in``gradle.properties`.
-- Integration test code: `src/integration-test/java/*` and `src/integration-test/resources/*`
-- Coding rules: `config/checkstyle/checkstyle.xml
-- Source file Header rule: `config/checkstyle/header.txt`
+reStructured Markup Text (ReST) is a plaintext that uses simple and intuitive
+constructs to indicate the structure of a document. 
 
-## Build system
+## Install
 
-The ReStructuredTest filter plugin for OmegaT use Gralde for build system
+Please download a zip file from Github releases. You can get jar file from zip distribution.
+OmegaT plugin should be placed in `$HOME/.omegat/plugin` or `C:\Program Files\OmegaT\plugin`
+depending on an operating systems you use and OmegaT installation configuration.
+
+## Development
+
+### Build system
+
+The ReStructuredTest filter plugin for OmegaT use Gradle for build system
 as same as OmegaT version 4.0 and later.
 
-## Dependency
+### Dependency
 
 OmegaT and dependencies are located on remote maven repositories.
 It is nessesary to connect the internet at least first time to compile.
 
-## Test report
+### Test report
 
 You can see test result report at `build/reports/` with your favorit web browser.
-
-## Install
-
-Please download zip file from Github release. You can get jar file from zip distribution.
-OmegaT plugin should be placed in `$HOME/.omegat/plugin` or `C:\Program Files\OmegaT\plugin`
-depending on your operating system.
 
 ## License
 

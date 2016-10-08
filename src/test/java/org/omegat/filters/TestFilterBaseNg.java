@@ -25,27 +25,13 @@
 
 package org.omegat.filters;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
 
 import org.omegat.core.Core;
 import org.omegat.core.data.EntryKey;
@@ -53,7 +39,6 @@ import org.omegat.core.data.IProject;
 import org.omegat.core.data.ProjectProperties;
 import org.omegat.core.data.ProtectedPart;
 import org.omegat.core.data.RealProject;
-import org.omegat.core.data.SourceTextEntry;
 import org.omegat.filters2.AbstractFilter;
 import org.omegat.filters2.FilterContext;
 import org.omegat.filters2.IAlignCallback;
@@ -63,15 +48,10 @@ import org.omegat.filters2.ITranslateCallback;
 import org.omegat.filters2.master.FilterMaster;
 import org.omegat.tokenizer.DefaultTokenizer;
 import org.omegat.util.Language;
-import org.omegat.util.TMXReader2;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 
 import org.apache.commons.io.FileUtils;
 
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.junit.Assert.*;
+import static org.testng.Assert.*;
 
 
 /**
@@ -80,7 +60,7 @@ import static org.junit.Assert.*;
  * @author Alex Buloichik <alex73mail@gmail.com>
  * @author Hiroshi Miura
  */
-abstract class TestFilterBase {
+public abstract class TestFilterBaseNg {
 
     protected FilterContext context = new FilterContext(new Language("en"), new Language("be"), false)
             .setTargetTokenizerClass(DefaultTokenizer.class);
@@ -245,68 +225,12 @@ abstract class TestFilterBase {
 
     protected void translateText(IFilter filter, String resource, Map<String, String> config) throws Exception {
         translate(filter, resource, config);
-        FileUtils.contentEquals(new File(this.getClass().getResource(resource).getFile()), outFile);
-    }
-
-    protected void translateXML(AbstractFilter filter, String filename) throws Exception {
-        translate(filter, filename);
-        compareXML(new File(filename), outFile);
-    }
-
-    public static void compareBinary(File f1, File f2) throws Exception {
-        ByteArrayOutputStream d1 = new ByteArrayOutputStream();
-        FileUtils.copyFile(f1, d1);
-
-        ByteArrayOutputStream d2 = new ByteArrayOutputStream();
-        FileUtils.copyFile(f2, d2);
-
-        assertEquals(d1.size(), d2.size());
-        byte[] a1 = d1.toByteArray();
-        byte[] a2 = d2.toByteArray();
-        for (int i = 0; i < d1.size(); i++) {
-            assertEquals(a1[i], a2[i]);
+        File source = FileUtils.toFile(this.getClass().getResource(resource));
+        if (!FileUtils.contentEquals(source, outFile)) {
+            String sourceText = FileUtils.readFileToString(source);
+            String targetText = FileUtils.readFileToString(outFile);
+            assertEquals(targetText, sourceText);
         }
-    }
-
-    /**
-     * Remove version and toolname, then compare.
-     */
-    protected void compareTMX(File f1, File f2) throws Exception {
-        XPathExpression exprVersion = XPathFactory.newInstance().newXPath()
-                .compile("/tmx/header/@creationtoolversion");
-        XPathExpression exprTool = XPathFactory.newInstance().newXPath().compile("/tmx/header/@creationtool");
-
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        builder.setEntityResolver(TMXReader2.TMX_DTD_RESOLVER);
-
-        Document doc1 = builder.parse(f1);
-        Document doc2 = builder.parse(f2);
-
-        Node n;
-
-        n = (Node) exprVersion.evaluate(doc1, XPathConstants.NODE);
-        n.setNodeValue("");
-
-        n = (Node) exprVersion.evaluate(doc2, XPathConstants.NODE);
-        n.setNodeValue("");
-
-        n = (Node) exprTool.evaluate(doc1, XPathConstants.NODE);
-        n.setNodeValue("");
-
-        n = (Node) exprTool.evaluate(doc2, XPathConstants.NODE);
-        n.setNodeValue("");
-
-        assertXMLEqual(doc1, doc2);
-    }
-
-    protected void compareXML(File f1, File f2) throws Exception {
-        compareXML(f1.toURI().toURL(), f2.toURI().toURL());
-    }
-
-    protected void compareXML(URL f1, URL f2) throws Exception {
-        assertXMLEqual(new InputSource(f1.toExternalForm()), new InputSource(f2.toExternalForm()));
     }
 
     protected static class ParsedEntry {
@@ -332,57 +256,6 @@ abstract class TestFilterBase {
 
     protected IProject.FileInfo fi;
     protected int fiCount;
-
-    protected void checkMultiStart(IProject.FileInfo fi, String file) {
-        this.fi = fi;
-        fiCount = 0;
-        for (SourceTextEntry ste : fi.entries) {
-            assertEquals(file, ste.getKey().file);
-            assertEquals(ste.getSrcText(), ste.getKey().sourceText);
-        }
-    }
-
-    protected void checkMultiEnd() {
-        assertEquals(fiCount, fi.entries.size());
-    }
-
-    protected void checkMulti(String sourceText, String id, String path, String prev, String next,
-                              String comment) {
-        assertEquals(new EntryKey(fi.filePath, sourceText, id, prev, next, path), fi.entries.get(fiCount)
-                .getKey());
-        assertEquals(comment, fi.entries.get(fiCount).getComment());
-        fiCount++;
-    }
-
-    protected void checkMultiProps(String sourceText, String id, String path, String prev, String next,
-                                   String... props) {
-        assertEquals(new EntryKey(fi.filePath, sourceText, id, prev, next, path),
-                fi.entries.get(fiCount).getKey());
-        List<String> expected = Arrays.asList(props);
-        String[] actual = fi.entries.get(fiCount).getRawProperties();
-        assertEquals(props.length, actual.length);
-        for (int i = 0; i < actual.length; i += 2) {
-            int keyIndex = expected.indexOf(actual[i]);
-            assertFalse(keyIndex == -1);
-            int valIndex = expected.indexOf(actual[i + 1]);
-            assertEquals(keyIndex + 1, valIndex);
-        }
-        fiCount++;
-    }
-
-    protected SourceTextEntry checkMultiNoPrevNext(String sourceText, String id, String path, String comment) {
-        SourceTextEntry ste = fi.entries.get(fiCount);
-        assertEquals(path, ste.getKey().path);
-        assertEquals(id, ste.getKey().id);
-        assertEquals(sourceText, ste.getKey().sourceText);
-        assertEquals(comment, ste.getComment());
-        fiCount++;
-        return ste;
-    }
-
-    protected void skipMulti() {
-        fiCount++;
-    }
 
     /**
      * ProjectProperties successor for create project without directory.
@@ -477,25 +350,6 @@ abstract class TestFilterBase {
         public String source;
         public String translation;
         public String path;
-    }
-
-    /**
-     * Create BufferedReader from specified file and encoding.
-     *
-     * @param inFile file to read.
-     * @param inEncoding file encoding.
-     * @return BufferReader object.
-     * @throws IOException when file I/O error happened.
-     */
-    protected static BufferedReader getBufferedReader(final File inFile, final String inEncoding)
-            throws IOException {
-        InputStreamReader isr;
-        if (inEncoding == null) {
-            isr = new InputStreamReader(new FileInputStream(inFile), Charset.defaultCharset());
-        } else {
-            isr = new InputStreamReader(new FileInputStream(inFile), inEncoding);
-        }
-        return new BufferedReader(isr);
     }
 
 }
