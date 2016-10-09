@@ -328,22 +328,58 @@ public class RstFilter implements IFilter {
         if (outFile != null) {
             String outEncoding = getOutputEncoding(fc);
             try (BufferedWriter outfile = getBufferedWriter(outFile, outEncoding)) {
-                doc = process(doc);
-                DocUtilsVisitor visitor = new DocUtils2RST();
-                doc.accept(visitor);
-                String result = visitor.getResult();
-                outfile.write(result);
+                process(outfile, doc);
                 outfile.flush();
                 outfile.close();
             }
         } else {
-            process(doc);
+            BufferedWriter outfile = new NullBufferedWriter();
+            process(outfile, doc);
         }
     }
 
-    private Document process(final Document doc) {
-        // fixme.
-        return doc;
+    private void process(final BufferedWriter outfile, final Document doc) {
+        RstVisitor visitor = new RstVisitor(outfile);
+        doc.accept(visitor);
+    }
+
+    /**
+     * Process entries and push it to OmegaT core.
+     * @param entry entry string to add.
+     * @return translation if TranslationCallback defined, otherwise original entry.
+     */
+    private String processEntry(final String entry) {
+        if (entryParseCallback != null) {
+            entryParseCallback.addEntry(null, entry, null, false, null, null, this,
+                    ProtectedPart.extractFor(protectedParts, entry));
+            return entry;
+        } else {
+            String translation = entryTranslateCallback.getTranslation(null, entry, null);
+            if (translation == null) {
+                translation = entry;
+            }
+            return translation;
+        }
+    }
+
+    /**
+     * Process entry and write translation to translated file.
+     *
+     * @param value entry string.
+     * @param trans true when make translation for entry, otherwise write directory.
+     */
+    void writeTranslate(final String value, final boolean trans) {
+        if (!value.isEmpty()) {
+            String result;
+            if (trans) {
+                result = processEntry(value);
+            } else {
+                result = value;
+            }
+            /*
+              write(result)
+             */
+        }
     }
 
     /**
