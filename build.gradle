@@ -56,7 +56,7 @@ dependencies {
     provided 'org.omegat:omegat:4.0.0-02'
     provided 'commons-io:commons-io:2.4'
     provided 'commons-lang:commons-lang:2.6'
-    provided 'org.slf4j:slf4j-nop:1.5.10'
+    provided 'org.slf4j:slf4j-nop:1.7.21'
     testCompile 'org.codehaus.groovy:groovy:2.4.7'
     testCompile 'org.testng:testng:6.9.10'
     testCompile 'com.alibaba:fastjson:1.2.17'
