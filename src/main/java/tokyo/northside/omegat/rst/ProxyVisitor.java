@@ -157,6 +157,7 @@ public class ProxyVisitor extends VisitorSupport {
         // Inline Elements
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         else if (elementEquals(ReStructuredText.EMPHASIS, e)) {
+            v.visitEmphasis(e);
         } else if (elementEquals(ReStructuredText.STRONG, e)) {
         } else if (elementEquals(ReStructuredText.LITERAL, e)) {
         } else if (elementEquals(ReStructuredText.REFERENCE, e)) {

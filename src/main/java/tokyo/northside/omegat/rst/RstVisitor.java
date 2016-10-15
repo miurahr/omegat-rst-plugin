@@ -22,6 +22,7 @@ public class RstVisitor {
     static final String LINE_SEPARATOR = "\n";
     static final String SPACE = " ";
     static final Character[] TITLE_CHAR = {'=','-','~','^'};
+    static final String EMPHASIS = "**";
     private int level;
 
     public RstVisitor(final RstFilter filter) {
@@ -81,6 +82,10 @@ public class RstVisitor {
 
     public void visitParagraph(Element e) {
         write(indent(e.getText(), level));
+    }
+
+    public void visitEmphasis(Element e) {
+        write(EMPHASIS + e.getText() + EMPHASIS);
     }
 
     public void visitAttribution(Element e) {
