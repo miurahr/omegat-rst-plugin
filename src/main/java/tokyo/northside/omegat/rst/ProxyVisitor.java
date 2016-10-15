@@ -1,3 +1,28 @@
+/**************************************************************************
+ OmegaT - Computer Assisted Translation (CAT) tool
+ with fuzzy matching, translation memory, keyword search,
+ glossaries, and translation leveraging into updated projects.
+
+ Copyright (C) 2016 Hiroshi Miura
+ Home page: http://www.omegat.org/
+ Support center: http://groups.yahoo.com/group/OmegaT/
+
+ This file is part of OmegaT.
+
+ OmegaT is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ OmegaT is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ **************************************************************************/
+
 package tokyo.northside.omegat.rst;
 
 import org.dom4j.Element;
@@ -12,7 +37,11 @@ import org.nuiton.jrst.legacy.ReStructuredText;
 public class ProxyVisitor extends VisitorSupport {
     private RstVisitor v;
 
-    public ProxyVisitor(RstVisitor visitor) {
+    /**
+     * Constructor get concrete visitor.
+     * @param visitor concrete visitor.
+     */
+    public ProxyVisitor(final RstVisitor visitor) {
         this.v = visitor;
     }
 
@@ -57,6 +86,8 @@ public class ProxyVisitor extends VisitorSupport {
             //v.visitDate(e);
         } else if (elementEquals(ReStructuredText.COPYRIGHT, e)) {
             //v.visitCopyright(e);
+        } else if (elementEquals(ReStructuredText.TOPIC, e)) {
+            v.visitTopic(e);
         }
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Decoration Elements
@@ -75,12 +106,10 @@ public class ProxyVisitor extends VisitorSupport {
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         else if (elementEquals(ReStructuredText.SECTION, e)) {
             v.visitSection(e);
-        } else if (elementEquals(ReStructuredText.TOPIC, e)) {
-            v.visitTopic(e);
         } else if (elementEquals(ReStructuredText.SIDEBAR, e)) {
             //v.visitSideBar(e);
         } else if (elementEquals(ReStructuredText.TRANSITION, e)) {
-            //v.visitTransition(e);
+            v.visitTransition(e);
         }
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Body Elements
@@ -110,6 +139,7 @@ public class ProxyVisitor extends VisitorSupport {
         } else if (elementEquals(ReStructuredText.OPTION_ARGUMENT, e)) {
         } else if (elementEquals(ReStructuredText.DESCRIPTION, e)) {
         } else if (elementEquals(ReStructuredText.LITERAL_BLOCK, e)) {
+            v.visitLiteralBlock(e);
         } else if (elementEquals(ReStructuredText.LINE_BLOCK, e)) {
         } else if (elementEquals(ReStructuredText.LINE, e)) {
         } else if (elementEquals(ReStructuredText.BLOCK_QUOTE, e)) {
@@ -159,6 +189,7 @@ public class ProxyVisitor extends VisitorSupport {
         else if (elementEquals(ReStructuredText.EMPHASIS, e)) {
             v.visitEmphasis(e);
         } else if (elementEquals(ReStructuredText.STRONG, e)) {
+            v.visitStrong(e);
         } else if (elementEquals(ReStructuredText.LITERAL, e)) {
         } else if (elementEquals(ReStructuredText.REFERENCE, e)) {
         } else if (elementEquals(ReStructuredText.FOOTNOTE_REFERENCE, e)) {

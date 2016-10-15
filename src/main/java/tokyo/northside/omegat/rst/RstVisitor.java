@@ -22,7 +22,10 @@ public class RstVisitor {
     static final String LINE_SEPARATOR = "\n";
     static final String SPACE = " ";
     static final Character[] TITLE_CHAR = {'=','-','~','^'};
-    static final String EMPHASIS = "**";
+    static final String EMPHASIS = "*";
+    static final String STRONG = "**";
+    static final String TRANSITION = "\n----------\n";
+    static final String LITERAL_BLOCK = "::";
     private int level;
 
     public RstVisitor(final RstFilter filter) {
@@ -43,11 +46,11 @@ public class RstVisitor {
     public void visitTitle(Element e) {
         String result = e.getText();
         write(result);
-        String underLine = EMPTY_STRING;
+        StringBuilder underLine = new StringBuilder(LINE_SEPARATOR);
         for (int i = 0; i < result.length(); i++) {
-            underLine += TITLE_CHAR[level];
+            underLine.append(TITLE_CHAR[level]);
         }
-        put(LINE_SEPARATOR + underLine + LINE_SEPARATOR);
+        put(underLine.append(LINE_SEPARATOR).toString());
     }
 
     public void visitSubTitle(Element e) {
@@ -80,6 +83,10 @@ public class RstVisitor {
         write(buffer.toString());
     }
 
+    public void visitTransition(Element e) {
+        put(TRANSITION);
+    }
+
     public void visitParagraph(Element e) {
         write(indent(e.getText(), level));
     }
@@ -88,10 +95,20 @@ public class RstVisitor {
         write(EMPHASIS + e.getText() + EMPHASIS);
     }
 
+    public void visitStrong(Element e) {
+        write(STRONG + e.getText() + STRONG);
+    }
+
     public void visitAttribution(Element e) {
     }
 
     public void visitBlockQuote(Element e) {
+        write(indent(e.getText(), level));
+    }
+
+    public void visitLiteralBlock(Element e) {
+        put(LITERAL_BLOCK);
+        write(indent(e.getText(), level));
     }
 
     public void parseDocument(Document doc) {
