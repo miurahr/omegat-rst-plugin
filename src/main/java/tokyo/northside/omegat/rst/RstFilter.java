@@ -160,7 +160,7 @@ public class RstFilter implements IFilter {
      * @return Default filter instances
      */
     public Instance[] getDefaultInstances() {
-        return new Instance[]{new Instance("*.md")};
+        return new Instance[]{new Instance("*.rst")};
     }
 
     /**
