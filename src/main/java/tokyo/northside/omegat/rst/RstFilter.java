@@ -25,7 +25,6 @@
 
 package tokyo.northside.omegat.rst;
 
-import org.nuiton.jrst.convertisor.DocUtilsVisitor;
 import org.omegat.core.Core;
 import org.omegat.core.data.ProtectedPart;
 import org.omegat.filters2.FilterContext;
@@ -48,18 +47,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.dom4j.Document;
-import org.dom4j.Visitor;
 import org.nuiton.jrst.JRST;
-import org.nuiton.jrst.convertisor.DocUtils2RST;
 
 
 /**
- * Created by miurahr on 16/10/07.
+ * @author Hiroshi Miura
  */
 public class RstFilter implements IFilter {
     /**
@@ -85,6 +81,11 @@ public class RstFilter implements IFilter {
     private String inEncodingLastParsedFile;
 
     private List<ProtectedPart> protectedParts = new ArrayList<>();
+
+    private BufferedWriter writer;
+
+    private boolean failure = false;
+    private StringBuilder failureLog = new StringBuilder();
 
     /**
      * Plugin loader.
@@ -320,9 +321,10 @@ public class RstFilter implements IFilter {
         String inEncoding = fc.getInEncoding();
         Document doc;
         try {
-            doc = JRST.generateDocutils(inFile, inEncoding);
+            doc = JRST.generateDocutils(inFile, "UTF-8");
         } catch (Exception ex) {
-            System.err.println(ex.getMessage());
+            System.err.println("reStructured Text parser error. Abort parse.");
+            System.err.println("Reason:" + ex.getMessage());
             return;
         }
         if (outFile != null) {
@@ -339,8 +341,18 @@ public class RstFilter implements IFilter {
     }
 
     private void process(final BufferedWriter outfile, final Document doc) {
-        RstVisitor visitor = new RstVisitor(outfile);
-        doc.accept(visitor);
+        writer = outfile;
+        RstVisitor visitor = new RstVisitor(this);
+        visitor.parseDocument(doc);
+    }
+
+    private void write(final String s) {
+        try {
+            writer.write(s);
+        } catch (IOException ioe) {
+            failure = true;
+            failureLog.append(ioe.getMessage());
+        }
     }
 
     /**
@@ -376,9 +388,7 @@ public class RstFilter implements IFilter {
             } else {
                 result = value;
             }
-            /*
-              write(result)
-             */
+            write(result);
         }
     }
 

@@ -1,13 +1,11 @@
 package tokyo.northside.omegat.rst;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.util.List;
 
+import org.dom4j.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.dom4j.Element;
-import org.dom4j.VisitorSupport;
 import org.nuiton.jrst.legacy.ReStructuredText;
 
 
@@ -15,11 +13,10 @@ import org.nuiton.jrst.legacy.ReStructuredText;
  * Visitor for reStructured Text DOM.
  * @author Hiroshi Miura
  */
-public class RstVisitor extends VisitorSupport {
+public class RstVisitor {
     private static Logger log = LoggerFactory.getLogger(RstVisitor.class);
-    private BufferedWriter writer;
-    private boolean failure = false;
-    private StringBuilder failureLog = new StringBuilder();
+    private ProxyVisitor v;
+    private RstFilter filter;
 
     static final String EMPTY_STRING = "";
     static final String LINE_SEPARATOR = "\n";
@@ -27,56 +24,46 @@ public class RstVisitor extends VisitorSupport {
     static final Character[] TITLE_CHAR = {'=','-','~','^'};
     private int level;
 
-    public RstVisitor(final BufferedWriter writer) {
-        this.writer = writer;
+    public RstVisitor(final RstFilter filter) {
+        this.filter = filter;
     }
 
-    private void write(final String s) {
-        try {
-            writer.write(s);
-        } catch (IOException ioe) {
-            failure = true;
-            failureLog.append(ioe.getMessage());
-        }
+    public void visitDocument(Element e) {
     }
 
-    @Override
-    public void visit(Element e) {
-        if (elementEquals(ReStructuredText.DOCUMENT, e)) {
-            composeDocument(e);
-        }
+    private void write(String result) {
+        filter.writeTranslate(result, true);
     }
 
-    public String composeTitle(Element e) {
+    private void put(String result) {
+        filter.writeTranslate(result, false);
+    }
+
+    public void visitTitle(Element e) {
         String result = e.getText();
         write(result);
         String underLine = EMPTY_STRING;
         for (int i = 0; i < result.length(); i++) {
             underLine += TITLE_CHAR[level];
         }
-        result += LINE_SEPARATOR + underLine + LINE_SEPARATOR;
-        log.debug("composeTitle :\n" + result);
-        return result;
+        put(LINE_SEPARATOR + underLine + LINE_SEPARATOR);
     }
 
-    public String composeSubTitle(Element e) {
+    public void visitSubTitle(Element e) {
         String result = e.getText();
         write(result);
         String underLine = EMPTY_STRING;
         for (int i = 0; i < result.length(); i++) {
             underLine += TITLE_CHAR[level];
         }
-        result += LINE_SEPARATOR + underLine + LINE_SEPARATOR;
-        log.debug("composeSubTitle :\n" + result);
-        return result;
+        put(LINE_SEPARATOR + underLine + LINE_SEPARATOR);
     }
 
-    public String composeSection(Element e) {
+    public void visitSection(Element e) {
         level++;
-        return EMPTY_STRING;
     }
 
-    public String composeTopic(Element e) {
+    public void visitTopic(Element e) {
         StringBuilder buffer = new StringBuilder(".. topic:: ");
         level++;
         List<?> elements = e.elements();
@@ -85,24 +72,26 @@ public class RstVisitor extends VisitorSupport {
             if (elementEquals(ReStructuredText.TITLE, element)) {
                 buffer.append(indent(element.getText()));
             } else if (elementEquals(ReStructuredText.PARAGRAPH, element)) {
-                parseDocument(element);
+                element.accept(v);
             }
         }
         --level;
-        String result = buffer.toString();
-        log.debug("composeTopic :\n" + result);
-        return result;
+        write(buffer.toString());
     }
 
-    public String composeParagraph(Element e) {
-        String result = indent(e.getText(), level);
-        log.debug("composeParagraph :\n" + result);
-        return result;
+    public void visitParagraph(Element e) {
+        write(indent(e.getText(), level));
     }
 
+    public void visitAttribution(Element e) {
+    }
 
-    public void parseDocument(Element e) {
-          e.accept(this);
+    public void visitBlockQuote(Element e) {
+    }
+
+    public void parseDocument(Document doc) {
+        v = new ProxyVisitor(this);
+        doc.accept(v);
     }
 
     protected boolean elementEquals(String name, Element e) {
