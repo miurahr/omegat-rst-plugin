@@ -49,5 +49,6 @@ class RstFilterTest extends RstTestBase {
     @Test
     void simple() throws Exception {
         test "/filters/rst/text1"
+        test "/filters/rst/text2"
     }
 }
