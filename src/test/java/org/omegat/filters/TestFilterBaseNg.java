@@ -55,7 +55,7 @@ import static org.testng.Assert.*;
 
 
 /**
- * Base class for test filter parsing.
+ * Base class for testTokenize filter parsing.
  * 
  * @author Alex Buloichik <alex73mail@gmail.com>
  * @author Hiroshi Miura

@@ -46,9 +46,29 @@ class RstFilterTest extends RstTestBase {
         assertFalse new RstFilter().isFileSupported(target, null, fc)
     }
 
+    /**
+     * Test tokenize result.
+     * @throws Exception when I/O or parser error happened.
+     */
     @Test
-    void simple() throws Exception {
-        test "/filters/rst/text1"
-        test "/filters/rst/text2"
+    void testTokenize() throws Exception {
+        testTokenize "/filters/rst/text1"
+        testTokenize "/filters/rst/text2"
+        testTokenize "/filters/rst/topic"
+    }
+
+    /**
+     * Test result of output.
+     * <p>
+     *     parse -> put original text with translated token.
+     *     this test use token as same as original.
+     *     It should be exactly same as original text.
+     * @throws Exception when I/O or parser error happened.
+     */
+    @Test
+    void testOutput() throws Exception {
+        testOutput "/filters/rst/text1"
+        testOutput "/filters/rst/text2"
+        testOutput "/filters/rst/text3"
     }
 }

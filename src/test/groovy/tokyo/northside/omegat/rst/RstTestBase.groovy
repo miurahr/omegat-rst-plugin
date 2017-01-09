@@ -8,12 +8,15 @@ import static org.testng.Assert.*;
 
 class RstTestBase extends TestFilterBaseNg {
 
-    def test(final String testcase) throws Exception {
+    def testOutput(final String testcase) throws Exception {
         translateText(new RstFilter(), testcase + ".rst")
+    }
+
+    def testTokenize(final String testcase) throws Exception {
         List<String> entries = parse(new RstFilter(), testcase + ".rst")
         URL url = this.getClass().getResource(testcase + ".json");
         if (url == null) {
-            throw new IOException("Cannot find test expectation.");
+            throw new IOException("Cannot find testTokenize expectation.");
         }
         BufferedReader reader = getBufferedReader(url.getFile())
         String jsonString = IOUtils.toString(reader);
