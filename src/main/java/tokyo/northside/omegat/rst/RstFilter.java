@@ -449,7 +449,7 @@ public class RstFilter implements IFilter {
      *
      * @param outFile file to output.
      * @param outEncoding file encoding.
-     * @return BufferedWiter object.
+     * @return BufferedWriter object.
      * @throws IOException when file I/O error happened.
      */
     public static BufferedWriter getBufferedWriter(final File outFile, final String outEncoding)
