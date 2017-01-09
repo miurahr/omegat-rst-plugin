@@ -3,10 +3,12 @@ package tokyo.northside.omegat.rst;
 import java.util.List;
 
 import org.dom4j.Document;
+import org.dom4j.Element;
+
+import org.nuiton.jrst.legacy.ReStructuredText;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.dom4j.Element;
-import org.nuiton.jrst.legacy.ReStructuredText;
 
 
 /**
@@ -30,37 +32,38 @@ public class RstVisitor {
 
     public RstVisitor(final RstFilter filter) {
         this.filter = filter;
+        printer = new RstPrinter();
     }
 
     public void visitDocument(Element e) {
     }
 
-    private void write(String result) {
+    private void putAsToken(String result) {
         filter.writeTranslate(result, true);
     }
 
-    private void put(String result) {
+    private void putAsNonToken(String result) {
         filter.writeTranslate(result, false);
     }
 
     public void visitTitle(Element e) {
         String result = e.getText();
-        write(result);
+        putAsToken(result);
         StringBuilder underLine = new StringBuilder(LINE_SEPARATOR);
         for (int i = 0; i < result.length(); i++) {
             underLine.append(TITLE_CHAR[level]);
         }
-        put(underLine.append(LINE_SEPARATOR).toString());
+        putAsNonToken(underLine.append(LINE_SEPARATOR).toString());
     }
 
     public void visitSubTitle(Element e) {
         String result = e.getText();
-        write(result);
+        putAsToken(result);
         String underLine = EMPTY_STRING;
         for (int i = 0; i < result.length(); i++) {
             underLine += TITLE_CHAR[level];
         }
-        put(LINE_SEPARATOR + underLine + LINE_SEPARATOR);
+        putAsNonToken(LINE_SEPARATOR + underLine + LINE_SEPARATOR);
     }
 
     public void visitSection(Element e) {
@@ -80,35 +83,35 @@ public class RstVisitor {
             }
         }
         --level;
-        write(buffer.toString());
+        putAsToken(buffer.toString());
     }
 
     public void visitTransition(Element e) {
-        put(TRANSITION);
+        putAsNonToken(TRANSITION);
     }
 
     public void visitParagraph(Element e) {
-        write(indent(e.getText(), level));
+        putAsToken(indent(e.getText(), level));
     }
 
     public void visitEmphasis(Element e) {
-        write(EMPHASIS + e.getText() + EMPHASIS);
+        putAsToken(EMPHASIS + e.getText() + EMPHASIS);
     }
 
     public void visitStrong(Element e) {
-        write(STRONG + e.getText() + STRONG);
+        putAsToken(STRONG + e.getText() + STRONG);
     }
 
     public void visitAttribution(Element e) {
     }
 
     public void visitBlockQuote(Element e) {
-        write(indent(e.getText(), level));
+        putAsToken(indent(e.getText(), level));
     }
 
     public void visitLiteralBlock(Element e) {
-        put(LITERAL_BLOCK);
-        write(indent(e.getText(), level));
+        putAsNonToken(LITERAL_BLOCK);
+        putAsToken(indent(e.getText(), level));
     }
 
     public void parseDocument(Document doc) {
