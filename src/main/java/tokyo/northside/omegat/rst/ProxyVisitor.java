@@ -27,7 +27,7 @@ package tokyo.northside.omegat.rst;
 
 import org.dom4j.Element;
 import org.dom4j.VisitorSupport;
-import org.nuiton.jrst.legacy.ReStructuredText;
+import tokyo.northside.jrst.ReStructuredText;
 
 
 /**

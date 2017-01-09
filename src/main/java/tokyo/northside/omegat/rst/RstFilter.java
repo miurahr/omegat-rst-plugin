@@ -51,7 +51,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.dom4j.Document;
-import org.nuiton.jrst.JRST;
+import tokyo.northside.jrst.JRSTLexer;
+import tokyo.northside.jrst.JRSTReader;
 
 
 /**
@@ -321,7 +322,9 @@ public class RstFilter implements IFilter {
         String inEncoding = fc.getInEncoding();
         Document doc;
         try {
-            doc = JRST.generateDocutils(inFile, "UTF-8");
+            BufferedReader reader = getBufferedReader(inFile, inEncoding);
+            JRSTReader jRstReader = new JRSTReader();
+            doc = jRstReader.read(reader);
         } catch (Exception ex) {
             System.err.println("reStructured Text parser error. Abort parse.");
             System.err.println("Reason:" + ex.getMessage());

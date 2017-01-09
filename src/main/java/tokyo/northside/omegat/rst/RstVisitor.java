@@ -5,7 +5,7 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
-import org.nuiton.jrst.legacy.ReStructuredText;
+import tokyo.northside.jrst.ReStructuredText;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,6 @@ public class RstVisitor {
 
     public RstVisitor(final RstFilter filter) {
         this.filter = filter;
-        printer = new RstPrinter();
     }
 
     public void visitDocument(Element e) {

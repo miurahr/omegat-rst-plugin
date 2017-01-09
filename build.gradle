@@ -49,10 +49,10 @@ repositories {
 }
 
 dependencies {
-    compile 'org.nuiton.jrst:jrst:2.2'
-    compile 'org.nuiton.jrst:jrst-doc:2.2'
-    compile 'org.nuiton.jrst:docutils:2.2'
     compile  'org.slf4j:slf4j-api:1.7.21'
+    compile('dom4j:dom4j:1.6.1') {exclude group: 'xml-apis', module: 'xml-apis'}
+    compile  'commons-logging:commons-logging:1.2'
+    compile  'commons-primitives:commons-primitives:1.0'
     provided 'org.omegat:omegat:4.0.0-02'
     provided 'commons-io:commons-io:2.4'
     provided 'commons-lang:commons-lang:2.6'
