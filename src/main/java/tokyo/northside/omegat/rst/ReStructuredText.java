@@ -26,7 +26,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************/
 
-package tokyo.northside.jrst;
+package tokyo.northside.omegat.rst;
 
 import java.util.regex.Pattern;
 

@@ -50,10 +50,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.dom4j.Document;
-import tokyo.northside.jrst.JRSTLexer;
-import tokyo.northside.jrst.JRSTReader;
-
 
 /**
  * @author Hiroshi Miura
@@ -320,11 +316,8 @@ public class RstFilter implements IFilter {
     protected void processFile(final File inFile, final File outFile, final FilterContext fc)
             throws IOException, TranslationException {
         String inEncoding = fc.getInEncoding();
-        Document doc;
         try {
             BufferedReader reader = getBufferedReader(inFile, inEncoding);
-            JRSTReader jRstReader = new JRSTReader();
-            doc = jRstReader.read(reader);
         } catch (Exception ex) {
             System.err.println("reStructured Text parser error. Abort parse.");
             System.err.println("Reason:" + ex.getMessage());
@@ -333,20 +326,14 @@ public class RstFilter implements IFilter {
         if (outFile != null) {
             String outEncoding = getOutputEncoding(fc);
             try (BufferedWriter outfile = getBufferedWriter(outFile, outEncoding)) {
-                process(outfile, doc);
+                //process(outfile);
                 outfile.flush();
                 outfile.close();
             }
         } else {
             BufferedWriter outfile = new NullBufferedWriter();
-            process(outfile, doc);
+            //process(outfile);
         }
-    }
-
-    private void process(final BufferedWriter outfile, final Document doc) {
-        writer = outfile;
-        RstVisitor visitor = new RstVisitor(this);
-        visitor.parseDocument(doc);
     }
 
     private void write(final String s) {
