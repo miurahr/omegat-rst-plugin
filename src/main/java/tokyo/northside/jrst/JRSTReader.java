@@ -45,14 +45,9 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.dom4j.IllegalAddException;
-import org.dom4j.Node;
-import org.dom4j.VisitorSupport;
-
+import tokyo.northside.jrst.ast.Document;
+import tokyo.northside.jrst.ast.Element;
+import tokyo.northside.jrst.ast.TextElement;
 import tokyo.northside.jrst.directive.ContentDirective;
 import tokyo.northside.jrst.directive.DateDirective;
 import tokyo.northside.jrst.directive.ImageDirective;
@@ -247,7 +242,7 @@ import static tokyo.northside.jrst.ReStructuredText.VERSION;
  * ou qu'il y a une erreur dans le fichier en entre.
  * <p>
  * Tous les elements ont un attribut level qui permet de savoir on il est dans
- * la hierarchie. Le Document a le level -1001, et les sections/titres on pour
+ * la hierarchie. Le Element a le level -1001, et les sections/titres on pour
  * level les valeurs 1000, -999, -998, ...
  * <p>
  * de cette facon les methods isUpperLevel et isSameLevel fonctionne pour tous
@@ -448,19 +443,19 @@ public class JRSTReader {
 
     private int symbolMaxRef;
 
-    private LinkedList<Integer> lblFootnotes = new LinkedList<Integer>();
+    private LinkedList<Integer> lblFootnotes = new LinkedList<>();
 
-    private LinkedList<Integer> lblFootnotesRef = new LinkedList<Integer>();
+    private LinkedList<Integer> lblFootnotesRef = new LinkedList<>();
 
-    private LinkedList<Element> eFootnotes = new LinkedList<Element>();
+    private LinkedList<Element> eFootnotes = new LinkedList<>();
 
-    private LinkedList<Element> eTarget = new LinkedList<Element>();
+    private LinkedList<Element> eTarget = new LinkedList<>();
 
-    private LinkedList<Element> eTargetAnonymous = new LinkedList<Element>();
+    private LinkedList<Element> eTargetAnonymous = new LinkedList<>();
 
-    private LinkedList<Element> eTargetAnonymousCopy = new LinkedList<Element>();
+    private LinkedList<Element> eTargetAnonymousCopy = new LinkedList<>();
 
-    private LinkedList<Element> eTitle = new LinkedList<Element>();
+    private LinkedList<Element> eTitle = new LinkedList<>();
 
     static {
         defaultDirectives = new HashMap<>();
@@ -583,7 +578,7 @@ public class JRSTReader {
      * @param e Element
      *
      */
-    private void composeContents(Element e) {
+    private void composeContents(TextElement e) {
         Element result = DocumentHelper.createElement(TOPIC);
         String option = e.getText();
         int depth = -1;
@@ -746,9 +741,9 @@ public class JRSTReader {
      * @return Element
      * @throws Exception
      */
-    private Element composeDocument(JRSTLexer lexer) throws Exception {
-        Element result = DocumentHelper.createElement(DOCUMENT);
-        result.addAttribute(LEVEL, String.valueOf(MAX_SECTION_DEPTH - 1));
+    private Document composeDocument(JRSTLexer lexer) throws Exception {
+        Document result =new Document();
+        result.setLevel(MAX_SECTION_DEPTH - 1);
 
         Element item = null;
 
@@ -759,7 +754,6 @@ public class JRSTReader {
         LinkedList<Element> items = lexer.refTarget();
         for (Element e : items) {
             eTarget.add(e);
-
         }
 
         // le header
@@ -1984,7 +1978,7 @@ public class JRSTReader {
         // if (!(itemEquals(SECTION, subSection) && itemEquals(SECTION,
         // section))
         // || itemEquals(DOCUMENT, section) || itemEquals(SECTION, section)) {
-        // // all element is upper than Document or section
+        // // all element is upper than Element or section
         // return true;
         // }
         int subSectionLevel = Integer.parseInt(subSection
@@ -2005,7 +1999,7 @@ public class JRSTReader {
     private boolean isSameLevel(Element subSection, Element section)
             throws DocumentException {
         // if (itemEquals(DOCUMENT, section) || itemEquals(SECTION, section)) {
-        // // all element is upper than Document or section
+        // // all element is upper than Element or section
         // return false;
         // }
         int subSectionLevel = Integer.parseInt(subSection
