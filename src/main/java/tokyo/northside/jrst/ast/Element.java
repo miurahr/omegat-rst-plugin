@@ -26,8 +26,9 @@ public class Element extends AbstractNode implements Node {
         return level;
     }
 
-    public void setLevel(int level) {
+    public Element setLevel(int level) {
         this.level = level;
+        return this;
     }
 
     public void accept(Visitor visitor) {

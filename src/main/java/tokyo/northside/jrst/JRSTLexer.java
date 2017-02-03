@@ -176,10 +176,7 @@ public class JRSTLexer {
 
     static final public String CELL_END = "end";
     
-    static final public String REMOVE = "remove";
 
-    static final public String INCLUDE = "include";
-    
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Directive Elements
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -206,9 +203,9 @@ public class JRSTLexer {
     static final public String ID = "id";
 
     static final public String DELIMITER = "delimiter";
-    
+
     static final public String DELIMITEREXISTE ="delimiterExiste";
-    
+
     static final public String ENUMTYPE = "enumtype";
     
     static final public String REFURI = "refuri";
@@ -229,16 +226,8 @@ public class JRSTLexer {
     
     static final public String START = "start";
     
-    static final public String SUBEXISTE = "subExiste";
-    
     static final public String SUFFIX = "suffix";
         
-    static final public String SUBTITLE = "subtitle";
-    
-    static final public String TERM = "term";
-    
-    static final public String TITLEATTR = "title";
-    
     static final public String XMLSPACE = "xml:space";
     
     static final public String TYPE = "type";
@@ -771,7 +760,7 @@ public class JRSTLexer {
      */
     private Element peekLineBlock() throws IOException {
         beginPeek();
-        Element result = null;
+        LineBlockElement result = null;
         String line = in.readLine();
         if (line != null) {
             if (line.matches("\\|\\s.*")) {
@@ -783,9 +772,7 @@ public class JRSTLexer {
                 }
                 int[] levelsTmp = new int[lines.length];
                 int levelmin = 999;
-                result = DocumentHelper.createElement(LINE_BLOCK).addAttribute(
-                        LEVEL, 0 + "");
-                for (int i = 0; i < levelsTmp.length; i++) {
+               for (int i = 0; i < levelsTmp.length; i++) {
                     // on enleve |
                     lines[i] = lines[i].replaceAll("\\|\\s?", "");
                 }
@@ -843,11 +830,12 @@ public class JRSTLexer {
                     cnt++;
                     lineAv = l;
                 }
+                List<Node> eLine = new ArrayList<>();
                 for (int i = 0; i < levels.length; i++) {
-                    Element eLine = result.addElement(LINE);
-                    eLine.addAttribute(LEVEL, "" + levels[i]);
-                    eLine.setText(lines[i].trim());
+                    eLine.add(new LineElement(lines[i].trim()).setLevel(levels[i]));
                 }
+                result = new LineBlockElement(eLine);
+                result.setLevel(0);
             }
         }
         endPeek();
@@ -867,16 +855,15 @@ public class JRSTLexer {
      */
     private Element peekDoctestBlock() throws IOException {
         beginPeek();
-        Element result = null;
+        DoctestBlockElement result = null;
         String line = in.readLine();
         if (line != null) {
             if (line.matches("^\\s*>>>\\s.*")) {
                 int level = level(line);
-                result = DocumentHelper.createElement(DOCTEST_BLOCK)
-                        .addAttribute(LEVEL, String.valueOf(level));
-                result.addAttribute(XMLSPACE, "preserve");
+                result = new DoctestBlockElement();
+                result.setLevel(level);
                 line += "\n" + joinBlock(readBlock(level));
-                result.setText(line);
+                result.append(line);
             }
         }
         endPeek();
@@ -899,7 +886,7 @@ public class JRSTLexer {
      */
     private Element peekBlockQuote() throws IOException {
         beginPeek();
-        Element result = null;
+        BlockQuoteElement result = null;
         String line = in.readLine();
         if (line != null) {
             if (line.matches("\\s.*")) {
@@ -923,12 +910,12 @@ public class JRSTLexer {
                                 txt += "\n" + l;
                             }
                         }
-                        result = DocumentHelper.createElement(ReStructuredText.BLOCK_QUOTE)
-                                .addAttribute(LEVEL, String.valueOf(level));
+                        result = new BlockQuoteElement();
+                        result.setLevel(level);
                         if (blockQuote != null) {
-                            result.addAttribute(ATTRIBUTION, blockQuote);
+                            result.setAttribution(blockQuote);
                         }
-                        result.setText(savedLine + txt);
+                        result.append(savedLine + txt);
                     }
                 }
             }
@@ -953,7 +940,7 @@ public class JRSTLexer {
      */
     protected Element peekAdmonition() throws IOException {
         beginPeek();
-        Element result = null;
+        AdmonitionElement result = null;
         String line = in.readLine();
         if (line != null) {
             String lineTest = line.toLowerCase();
@@ -967,21 +954,15 @@ public class JRSTLexer {
                 matcher = Pattern.compile(ADMONITION_PATTERN).matcher(lineTest);
                 matcher.find();
                 int level = level(line);
-                result = DocumentHelper.createElement(ADMONITION).addAttribute(
-                        LEVEL, "" + level);
+                result = new AdmonitionElement();
+                result.setLevel(level);
 
-                if (matcher.group().equals(ADMONITION)) { // Il y a un titre
-                    // pour un
-                    // admonition
-                    // general
-                    admonition = true;
-                    result.addAttribute(TYPE, ADMONITION);
+                if (matcher.group().equals(ADMONITION)) {
                     String title = line.substring(matcher.end() + 2, line
                             .length());
-
-                    result.addAttribute(TITLEATTR, title);
+                    result.setClasses(title);
                 } else {
-                    result.addAttribute(TYPE, matcher.group());
+                    result.setClasses(matcher.group());
                 }
                 
                 String firstLine = "";
@@ -998,12 +979,12 @@ public class JRSTLexer {
                         level = level(line);
                         String txt = firstLine.trim() + "\n" + line + "\n";
                         txt += "\n" + readBlockWithBlankLine(level);
-                        result.setText(txt);
+                        result.append(txt);
                     } else {
-                        result.setText(firstLine);
+                        result.append(firstLine);
                     }
                 } else {
-                    result.setText(firstLine);
+                    result.append(firstLine);
                 }
             }
         }
@@ -1025,8 +1006,8 @@ public class JRSTLexer {
         String line = in.readLine();
         if (line != null && line.matches("\\s*")) {
             int level = level(line);
-            result = DocumentHelper.createElement(BLANK_LINE).addAttribute(
-                    LEVEL, String.valueOf(level));
+            result = new BlankLineElement();
+            result.setLevel(level);
         }
 
         endPeek();
@@ -1051,25 +1032,20 @@ public class JRSTLexer {
                 String ref = matcher.group(1);
                 String directiveType = matcher.group(2);
                 String directiveValue = matcher.group(3);
-                Element directive = null;
+                DirectiveElement directive;
                 if (ref != null && !"".equals(ref)) {
-                    result = DocumentHelper
-                            .createElement(SUBSTITUTION_DEFINITION);
-                    result.addAttribute(NAME, ref);
-                    directive = result.addElement(DIRECTIVE);
+                    directive = new DirectiveElement();
+                    result = new SubstitutionDefinitionElement(ref, directive);
                 } else {
-                    result = DocumentHelper.createElement(DIRECTIVE);
-                    directive = result;
+                    directive = new DirectiveElement();
+                    result = directive;
                 }
-                result.addAttribute(LEVEL, "0");
-
-                directive.addAttribute(DIRECTIVE_TYPE, directiveType);
-                directive.addAttribute(DIRECTIVE_VALUE, directiveValue);
-
+                result.setLevel(0);
+                directive.setType(directiveType);
+                directive.setValue(directiveValue);
                 String[] lines = readBlock(1);
                 String text = joinBlock(lines, "\n", false);
-
-                directive.setText(text);
+                directive.append(text);
             }
         }
         endPeek();
